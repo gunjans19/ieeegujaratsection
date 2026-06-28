@@ -499,8 +499,8 @@ export default function AdminDashboard() {
         sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       }`} style={{ background: 'rgba(0,15,35,0.98)', borderRight: '1px solid rgba(255,255,255,0.07)' }}>
         {/* Logo */}
-        <div className="px-5 py-6 border-b" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
-          <img src="/2_20260512_144200_0001.png" alt="IEEE Gujarat Section" className="h-20 w-auto object-contain" />
+        <div className="border-b flex items-center justify-center" style={{ borderColor: 'rgba(255,255,255,0.07)', height: '88px', padding: '8px 12px' }}>
+          <img src="/2_20260512_144200_0001.png" alt="IEEE Gujarat Section" className="h-full w-full object-contain" />
         </div>
 
         {/* Nav */}
@@ -558,7 +558,7 @@ export default function AdminDashboard() {
               <h1 className="text-lg font-bold text-white capitalize">
                 {activeTab === 'overview' ? 'Dashboard' : activeTab === 'links' ? 'Manage Links' : activeTab === 'events' ? 'Manage Events' : activeTab === 'announcements' ? 'Manage Announcements' : activeTab === 'committee' ? 'Manage Committee' : 'Manage Slideshow'}
               </h1>
-              <p className="text-xs text-slate-500 hidden sm:block">IEEE Gujarat Section Admin</p>
+              <p className="text-xs text-slate-500 hidden sm:block">{localStorage.getItem('admin_role') || 'Admin'}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
