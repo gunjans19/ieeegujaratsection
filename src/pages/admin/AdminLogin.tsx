@@ -21,8 +21,7 @@ export default function AdminLogin() {
 
       const checks: [string, string, string][] = [
         [h('gunjansharma@ieee.org','mishwa2me'), 'Gunjan Sharma', 'Super Admin'],
-        [h('harshpal@ieee.org','mishwa2me'), 'Harshpal Singh Solanki', 'Admin'],
-        [h('harshpal@ieee.org','harshpal123'), 'Harshpal Singh Solanki', 'Admin'],
+        [h('pateltirthgunisb@ieee.org','DCchairtirth'), 'Tirth Patel', 'Admin'],
       ];
 
       const attempt = h(email, password);
