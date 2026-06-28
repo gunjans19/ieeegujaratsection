@@ -3,6 +3,7 @@ import { ArrowLeft, Calendar, MapPin, Clock, ExternalLink, Filter, Search, X } f
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import PageBackground from '../components/PageBackground';
 
 const allEvents = [
   {
@@ -122,25 +123,6 @@ export default function EventsPage() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const localEvents = localStorage.getItem('admin_events');
-        if (localEvents) {
-          const parsed = JSON.parse(localEvents);
-          const mapped = parsed.map((e: any) => ({
-            id: e.id,
-            title: e.title,
-            subtitle: e.category,
-            date: e.date,
-            time: e.time,
-            location: e.location,
-            category: e.category,
-            status: e.status || 'upcoming',
-            description: e.description,
-            registrationLink: e.registration_link || '#',
-          }));
-          setEvents(mapped);
-          return;
-        }
-
         const { data, error } = await supabase
           .from('events')
           .select('*')
@@ -160,11 +142,38 @@ export default function EventsPage() {
             registrationLink: e.registration_link || '#',
           }));
           setEvents(mapped);
-          localStorage.setItem('admin_events', JSON.stringify(data));
+          return;
         }
       } catch (err) {
-        console.error('Error fetching events:', err);
+        console.error('Error fetching events from Supabase:', err);
       }
+
+      // Fallback: Local storage
+      const localEvents = localStorage.getItem('admin_events');
+      if (localEvents) {
+        try {
+          const parsed = JSON.parse(localEvents);
+          const mapped = parsed.map((e: any) => ({
+            id: e.id,
+            title: e.title,
+            subtitle: e.category,
+            date: e.date,
+            time: e.time,
+            location: e.location,
+            category: e.category,
+            status: e.status || 'upcoming',
+            description: e.description,
+            registrationLink: e.registration_link || '#',
+          }));
+          setEvents(mapped);
+          return;
+        } catch (e) {
+          console.error('Error parsing local events:', e);
+        }
+      }
+
+      // Fallback: Default mock data
+      setEvents(allEvents);
     };
 
     fetchEvents();
@@ -189,11 +198,8 @@ export default function EventsPage() {
       backgroundSize: '400% 400%',
       animation: 'gradientShift 15s ease infinite',
     }}>
-      {/* Particles Canvas */}
-      <ParticleCanvas />
-
-      {/* Mouse Glow */}
-      <MouseGlow />
+      {/* Page Background (Particles & Mouse Glow) */}
+      <PageBackground />
 
       {/* 3D Background Grid */}
       <div className="fixed inset-0 pointer-events-none z-0" style={{
@@ -531,109 +537,4 @@ function EventCard({ event, delay, onClick }: { event: any; delay: number; onCli
   );
 }
 
-function ParticleCanvas() {
-  useEffect(() => {
-    const canvas = document.createElement('canvas');
-    canvas.id = 'particles-canvas';
-    canvas.style.position = 'fixed';
-    canvas.style.inset = '0';
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
-    canvas.style.zIndex = '0';
-    canvas.style.pointerEvents = 'none';
-    document.body.insertBefore(canvas, document.body.firstChild);
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const particles: { x: number, y: number, r: number, dx: number, dy: number }[] = [];
-
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    for (let i = 0; i < 80; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 1.5 + 0.5,
-        dx: (Math.random() - 0.5) * 0.4,
-        dy: (Math.random() - 0.5) * 0.4
-      });
-    }
-
-    function animate() {
-      if (!ctx) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      particles.forEach(p => {
-        p.x += p.dx;
-        p.y += p.dy;
-
-        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0,200,255,0.25)';
-        ctx.fill();
-      });
-
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-
-          if (dist < 120) {
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(0,180,255,${0.06 * (1 - dist / 120)})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        }
-      }
-
-      requestAnimationFrame(animate);
-    }
-
-    animate();
-  }, []);
-
-  return null;
-}
-
-function MouseGlow() {
-  useEffect(() => {
-    const glow = document.createElement('div');
-    glow.id = 'mouse-glow';
-    glow.style.position = 'fixed';
-    glow.style.width = '500px';
-    glow.style.height = '500px';
-    glow.style.borderRadius = '50%';
-    glow.style.background = 'radial-gradient(circle, rgba(0,180,255,0.08) 0%, transparent 70%)';
-    glow.style.pointerEvents = 'none';
-    glow.style.zIndex = '1';
-    document.body.appendChild(glow);
-
-    const handleMouseMove = (e: MouseEvent) => {
-      glow.style.left = e.clientX - 250 + 'px';
-      glow.style.top = e.clientY - 250 + 'px';
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-
-    return () => {
-      glow.remove();
-      document.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, []);
-
-  return null;
-}

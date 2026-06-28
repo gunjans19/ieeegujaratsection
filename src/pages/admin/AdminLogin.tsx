@@ -15,24 +15,6 @@ export default function AdminLogin() {
     setError('');
 
     try {
-      if (email === 'gunjansharma@ieee.org' && password === 'mishwa2me') {
-        localStorage.setItem('admin_auth', 'true');
-        localStorage.setItem('admin_email', 'gunjansharma@ieee.org');
-        localStorage.setItem('admin_name', 'Gunjan Sharma');
-        localStorage.setItem('admin_role', 'Super Admin');
-        window.location.href = '/admin/dashboard';
-        return;
-      }
-
-      if (email === 'harshpal@ieee.org' && (password === 'mishwa2me' || password === 'harshpal123')) {
-        localStorage.setItem('admin_auth', 'true');
-        localStorage.setItem('admin_email', 'harshpal@ieee.org');
-        localStorage.setItem('admin_name', 'Harshpal Singh Solanki');
-        localStorage.setItem('admin_role', 'Admin');
-        window.location.href = '/admin/dashboard';
-        return;
-      }
-
       const { data, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -52,10 +34,19 @@ export default function AdminLogin() {
         throw new Error('Access denied. Admin privileges required.');
       }
 
+      let displayRole = 'Admin';
+      if (adminData.role === 'super_admin' || adminData.role === 'superadmin') {
+        displayRole = 'Super Admin';
+      } else if (adminData.role === 'admin') {
+        displayRole = 'Admin';
+      } else if (adminData.role === 'editor') {
+        displayRole = 'Editor';
+      }
+
       localStorage.setItem('admin_auth', 'true');
       localStorage.setItem('admin_email', data.user?.email || email);
       localStorage.setItem('admin_name', adminData.name || 'Admin User');
-      localStorage.setItem('admin_role', adminData.role === 'superadmin' ? 'Super Admin' : 'Admin');
+      localStorage.setItem('admin_role', displayRole);
       window.location.href = '/admin/dashboard';
     } catch (err: unknown) {
       setError((err as Error).message || 'Login failed');

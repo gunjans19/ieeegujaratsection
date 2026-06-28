@@ -188,10 +188,41 @@ export default function AdminDashboard() {
   };
 
   const checkAdmin = async () => {
-    const isAuthed = localStorage.getItem('admin_auth') === 'true';
-    if (!isAuthed) {
-      navigate('/admin');
-      return;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        localStorage.removeItem('admin_auth');
+        navigate('/admin');
+        return;
+      }
+      
+      const { data: adminUser, error } = await supabase
+        .from('admin_users')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+         
+      if (error || !adminUser) {
+        await supabase.auth.signOut();
+        localStorage.removeItem('admin_auth');
+        navigate('/admin');
+        return;
+      }
+
+      let displayRole = 'Admin';
+      if (adminUser.role === 'super_admin' || adminUser.role === 'superadmin') {
+        displayRole = 'Super Admin';
+      } else if (adminUser.role === 'admin') {
+        displayRole = 'Admin';
+      } else if (adminUser.role === 'editor') {
+        displayRole = 'Editor';
+      }
+      localStorage.setItem('admin_auth', 'true');
+      localStorage.setItem('admin_email', adminUser.email || session.user.email || '');
+      localStorage.setItem('admin_name', (adminUser as any).name || 'Admin User');
+      localStorage.setItem('admin_role', displayRole);
+    } catch (e) {
+      console.error('Session verification error:', e);
     }
     loadData('overview');
   };
@@ -227,32 +258,64 @@ export default function AdminDashboard() {
       }
     }
     if (tab === 'overview' || tab === 'committee') {
-      const local = localStorage.getItem('admin_committee');
-      if (local && local.includes('Social Media Committee') && local.includes('Hansdah')) {
-        setCommitteeGroups(JSON.parse(local));
-      } else {
+      try {
+        const { data, error } = await supabase
+          .from('site_content')
+          .select('*')
+          .eq('section', 'committee')
+          .eq('key', 'members')
+          .single();
+
+        if (!error && data && data.content && data.content.groups) {
+          setCommitteeGroups(data.content.groups);
+        } else {
+          const local = localStorage.getItem('admin_committee');
+          if (local && local.includes('Social Media Committee') && local.includes('Hansdah')) {
+            setCommitteeGroups(JSON.parse(local));
+          } else {
+            setCommitteeGroups(defaultCommittee);
+            localStorage.setItem('admin_committee', JSON.stringify(defaultCommittee));
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching committee:', err);
         setCommitteeGroups(defaultCommittee);
-        localStorage.setItem('admin_committee', JSON.stringify(defaultCommittee));
       }
     }
     if (tab === 'overview' || tab === 'slideshow') {
-      const local = localStorage.getItem('admin_gallery');
-      if (local) {
-        setSlides(JSON.parse(local));
-      } else {
-        const defaultSlides = [
-          { id: 'slide-1', imageUrl: 'https://images.pexels.com/photos/2774556/pexels-photo-2774556.jpeg?auto=compress&cs=tinysrgb&w=1200', caption: 'SAMPARK 2026' },
-          { id: 'slide-2', imageUrl: 'https://images.pexels.com/photos/976866/pexels-photo-976866.jpeg?auto=compress&cs=tinysrgb&w=1200', caption: 'IEEE Gujarat Section Technical Congress' },
-          { id: 'slide-3', imageUrl: 'https://images.pexels.com/photos/1709003/pexels-photo-1709003.jpeg?auto=compress&cs=tinysrgb&w=1200', caption: 'Annual General Meeting' },
-        ];
-        setSlides(defaultSlides);
-        localStorage.setItem('admin_gallery', JSON.stringify(defaultSlides));
+      try {
+        const { data, error } = await supabase
+          .from('site_content')
+          .select('*')
+          .eq('section', 'slideshow')
+          .eq('key', 'gallery')
+          .single();
+
+        if (!error && data && data.content && data.content.slides) {
+          setSlides(data.content.slides);
+        } else {
+          const local = localStorage.getItem('admin_gallery');
+          if (local) {
+            setSlides(JSON.parse(local));
+          } else {
+            const defaultSlides = [
+              { id: 'slide-1', imageUrl: 'https://images.pexels.com/photos/2774556/pexels-photo-2774556.jpeg?auto=compress&cs=tinysrgb&w=1200', caption: 'SAMPARK 2026' },
+              { id: 'slide-2', imageUrl: 'https://images.pexels.com/photos/976866/pexels-photo-976866.jpeg?auto=compress&cs=tinysrgb&w=1200', caption: 'IEEE Gujarat Section Technical Congress' },
+              { id: 'slide-3', imageUrl: 'https://images.pexels.com/photos/1709003/pexels-photo-1709003.jpeg?auto=compress&cs=tinysrgb&w=1200', caption: 'Annual General Meeting' },
+            ];
+            setSlides(defaultSlides);
+            localStorage.setItem('admin_gallery', JSON.stringify(defaultSlides));
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching gallery:', err);
       }
     }
     setLoading(false);
   };
 
-  const handleSaveSlide = (slide: any, id?: string) => {
+  const handleSaveSlide = async (slide: any, id?: string) => {
+    let updatedSlides: any[] = [];
     setSlides(prev => {
       let updated;
       if (id) {
@@ -260,21 +323,48 @@ export default function AdminDashboard() {
       } else {
         updated = [...prev, { id: 'slide_' + Date.now(), imageUrl: slide.imageUrl, caption: slide.caption }];
       }
+      updatedSlides = updated;
       localStorage.setItem('admin_gallery', JSON.stringify(updated));
       return updated;
     });
-    showToast(id ? 'Slide updated successfully' : 'Slide added successfully');
+
+    const { error } = await supabase.from('site_content').upsert({
+      key: 'gallery',
+      section: 'slideshow',
+      content: { slides: updatedSlides },
+      updated_at: new Date().toISOString()
+    });
+
+    if (error) {
+      showToast('Saved locally (Offline/Dev Mode)', 'success');
+    } else {
+      showToast(id ? 'Slide updated successfully' : 'Slide added successfully');
+    }
     loadData('slideshow');
   };
 
-  const handleDeleteSlide = (id: string) => {
+  const handleDeleteSlide = async (id: string) => {
     if (!confirm('Delete this slide?')) return;
+    let updatedSlides: any[] = [];
     setSlides(prev => {
       const updated = prev.filter(s => s.id !== id);
+      updatedSlides = updated;
       localStorage.setItem('admin_gallery', JSON.stringify(updated));
       return updated;
     });
-    showToast('Slide deleted successfully');
+
+    const { error } = await supabase.from('site_content').upsert({
+      key: 'gallery',
+      section: 'slideshow',
+      content: { slides: updatedSlides },
+      updated_at: new Date().toISOString()
+    });
+
+    if (error) {
+      showToast('Deleted locally (Offline/Dev Mode)', 'success');
+    } else {
+      showToast('Slide deleted successfully');
+    }
     loadData('slideshow');
   };
 
@@ -404,7 +494,8 @@ export default function AdminDashboard() {
     loadData('announcements');
   };
 
-  const handleSaveMember = (member: any, originalName?: string) => {
+  const handleSaveMember = async (member: any, originalName?: string) => {
+    let updatedGroups: any[] = [];
     setCommitteeGroups(prev => {
       let groupExists = false;
       let updated = prev.map(g => {
@@ -455,15 +546,29 @@ export default function AdminDashboard() {
         }];
       }
 
+      updatedGroups = updated;
       localStorage.setItem('admin_committee', JSON.stringify(updated));
       return updated;
     });
-    showToast(originalName ? 'Member updated successfully' : 'Member added successfully');
+
+    const { error } = await supabase.from('site_content').upsert({
+      key: 'members',
+      section: 'committee',
+      content: { groups: updatedGroups },
+      updated_at: new Date().toISOString()
+    });
+
+    if (error) {
+      showToast('Saved locally (Offline/Dev Mode)', 'success');
+    } else {
+      showToast(originalName ? 'Member updated successfully' : 'Member added successfully');
+    }
     loadData('committee');
   };
 
-  const handleDeleteMember = (name: string, groupRole: string) => {
+  const handleDeleteMember = async (name: string, groupRole: string) => {
     if (!confirm(`Delete ${name}?`)) return;
+    let updatedGroups: any[] = [];
     setCommitteeGroups(prev => {
       const updated = prev.map(g => {
         if (g.role === groupRole) {
@@ -471,10 +576,23 @@ export default function AdminDashboard() {
         }
         return g;
       }).filter(g => g.members.length > 0);
+      updatedGroups = updated;
       localStorage.setItem('admin_committee', JSON.stringify(updated));
       return updated;
     });
-    showToast('Member deleted successfully');
+
+    const { error } = await supabase.from('site_content').upsert({
+      key: 'members',
+      section: 'committee',
+      content: { groups: updatedGroups },
+      updated_at: new Date().toISOString()
+    });
+
+    if (error) {
+      showToast('Deleted locally (Offline/Dev Mode)', 'success');
+    } else {
+      showToast('Member deleted successfully');
+    }
     loadData('committee');
   };
 
