@@ -499,8 +499,12 @@ export default function AdminDashboard() {
         sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       }`} style={{ background: 'rgba(0,15,35,0.98)', borderRight: '1px solid rgba(255,255,255,0.07)' }}>
         {/* Logo */}
-        <div className="border-b flex items-center justify-center" style={{ borderColor: 'rgba(255,255,255,0.07)', height: '88px', padding: '8px 12px' }}>
-          <img src="/2_20260512_144200_0001.png" alt="IEEE Gujarat Section" className="h-full w-full object-contain" />
+        <div className="border-b flex items-center justify-center" style={{ borderColor: 'rgba(255,255,255,0.07)', height: '120px', padding: '10px 16px' }}>
+          <img
+            src="/2_20260512_144200_0001.png"
+            alt="IEEE Gujarat Section"
+            className="h-full w-full object-contain"
+          />
         </div>
 
         {/* Nav */}
@@ -566,9 +570,6 @@ export default function AdminDashboard() {
               <Globe className="w-4 h-4" />
               <span className="hidden sm:inline">View Site</span>
             </a>
-            <div className="w-9 h-9 rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-              <Bell className="w-4 h-4 text-cyan-400" />
-            </div>
           </div>
         </header>
 
