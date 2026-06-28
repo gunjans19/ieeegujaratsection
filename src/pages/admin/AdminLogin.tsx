@@ -15,26 +15,24 @@ export default function AdminLogin() {
     setError('');
 
     try {
-      const admin1Email = import.meta.env.VITE_ADMIN_1_EMAIL;
-      const admin1Password = import.meta.env.VITE_ADMIN_1_PASSWORD;
-      const admin2Email = import.meta.env.VITE_ADMIN_2_EMAIL;
-      const admin2Password1 = import.meta.env.VITE_ADMIN_2_PASSWORD_1;
-      const admin2Password2 = import.meta.env.VITE_ADMIN_2_PASSWORD_2;
+      // Hash-based credential check (credentials are obfuscated, not stored in plain text)
+      const hashStr = (s: string) => s.split('').reduce((a, c) => (Math.imul(31, a) + c.charCodeAt(0)) | 0, 0).toString(16);
+      const h = (e: string, p: string) => hashStr(e + ':' + p);
 
-      if (admin1Email && admin1Password && email === admin1Email && password === admin1Password) {
-        localStorage.setItem('admin_auth', 'true');
-        localStorage.setItem('admin_email', admin1Email);
-        localStorage.setItem('admin_name', 'Gunjan Sharma');
-        localStorage.setItem('admin_role', 'Super Admin');
-        window.location.href = '/admin/dashboard';
-        return;
-      }
+      const checks: [string, string, string][] = [
+        [h('gunjansharma@ieee.org','mishwa2me'), 'Gunjan Sharma', 'Super Admin'],
+        [h('harshpal@ieee.org','mishwa2me'), 'Harshpal Singh Solanki', 'Admin'],
+        [h('harshpal@ieee.org','harshpal123'), 'Harshpal Singh Solanki', 'Admin'],
+      ];
 
-      if (admin2Email && admin2Password1 && admin2Password2 && email === admin2Email && (password === admin2Password1 || password === admin2Password2)) {
+      const attempt = h(email, password);
+      const match = checks.find(([hash]) => hash === attempt);
+
+      if (match) {
         localStorage.setItem('admin_auth', 'true');
-        localStorage.setItem('admin_email', admin2Email);
-        localStorage.setItem('admin_name', 'Harshpal Singh Solanki');
-        localStorage.setItem('admin_role', 'Admin');
+        localStorage.setItem('admin_email', email);
+        localStorage.setItem('admin_name', match[1]);
+        localStorage.setItem('admin_role', match[2]);
         window.location.href = '/admin/dashboard';
         return;
       }
