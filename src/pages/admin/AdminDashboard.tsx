@@ -500,8 +500,7 @@ export default function AdminDashboard() {
       }`} style={{ background: 'rgba(0,15,35,0.98)', borderRight: '1px solid rgba(255,255,255,0.07)' }}>
         {/* Logo */}
         <div className="px-5 py-6 border-b" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
-          <img src="/2_20260512_144200_0001.png" alt="IEEE" className="h-10 w-auto object-contain" />
-          <p className="text-[10px] text-slate-500 mt-2 font-mono">Developed by Gunjan Sharma</p>
+          <img src="/2_20260512_144200_0001.png" alt="IEEE Gujarat Section" className="h-16 w-auto object-contain" />
         </div>
 
         {/* Nav */}
@@ -542,7 +541,7 @@ export default function AdminDashboard() {
             <LogOut className="w-4 h-4" />
             Sign Out
           </button>
-          <p className="text-[9px] text-slate-600 text-center font-mono uppercase tracking-wider mt-1">Developed by Gunjan Sharma</p>
+          <p className="text-[9px] text-slate-600 text-center font-mono uppercase tracking-wider mt-1"></p>
         </div>
       </aside>
 
