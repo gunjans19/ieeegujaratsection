@@ -8,6 +8,6 @@ export default defineConfig({
     sourcemap: false,
   },
   esbuild: {
-    drop: ['console', 'debugger'],
+    pure: ['console.log', 'console.info', 'console.debug'],
   },
 });

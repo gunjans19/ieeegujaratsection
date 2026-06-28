@@ -12,8 +12,6 @@ if (import.meta.env.PROD) {
   console.log = () => {};
   console.debug = () => {};
   console.info = () => {};
-  console.warn = () => {};
-  console.error = () => {};
 }
 
 createRoot(document.getElementById('root')!).render(
