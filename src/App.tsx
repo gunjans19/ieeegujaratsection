@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Linkedin, MessageCircle, Globe, Network, Calendar, ChevronUp, Instagram, Youtube, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
-import { supabase } from './lib/supabase';
+import { ChevronUp, Zap, ChevronLeft, ChevronRight, Linkedin, Instagram, Youtube } from 'lucide-react';
 import PageBackground from './components/PageBackground';
+import { siteLinks, siteAnnouncements, slideshowSlides } from './data/siteData';
 
 const phrases = [
   'Connecting Technology, Innovation & Professionals',
@@ -18,52 +18,7 @@ export default function App() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [charIndex, setCharIndex] = useState(0);
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [links, setLinks] = useState<any[]>([
-    { icon: Linkedin, label: 'LinkedIn', description: 'Connect with us professionally', href: 'https://www.linkedin.com/company/ieee-gujarat-section/', isExternal: true },
-    { icon: MessageCircle, label: 'WhatsApp Community', description: 'Join our active discussion group', href: 'https://chat.whatsapp.com/', isExternal: true },
-    { icon: Globe, label: 'Official Website', description: 'Explore IEEE Gujarat Section', href: 'https://ieeegujaratsection.org/', isExternal: true },
-    { icon: Network, label: 'Membership Portal', description: 'Join or renew IEEE membership', href: 'https://www.ieee.org/', isExternal: true },
-    { icon: Calendar, label: 'Upcoming Events', description: 'Conferences, workshops & more', href: '/events', isExternal: false },
-  ]);
-
-  useEffect(() => {
-    const fetchLinks = async () => {
-      try {
-        const { data: dbData } = await supabase
-          .from('site_content')
-          .select('*')
-          .eq('section', 'links')
-          .order('key');
-        
-        let data = dbData && dbData.length > 0 ? dbData : null;
-
-        if (!data) {
-          const localLinks = localStorage.getItem('admin_links');
-          if (localLinks) {
-            data = JSON.parse(localLinks);
-          }
-        }
-
-        if (data) {
-          const iconMap: Record<string, any> = {
-            Linkedin, MessageCircle, Globe, Network, Calendar
-          };
-          const mapped = data.map((item: any) => ({
-            icon: iconMap[item.content.icon] || Globe,
-            label: item.content.label,
-            description: item.content.description,
-            href: item.content.url,
-            isExternal: !item.content.url.startsWith('/'),
-          }));
-          setLinks(mapped);
-        }
-      } catch (err) {
-        console.error('Error fetching links:', err);
-      }
-    };
-
-    fetchLinks();
-  }, []);
+  const [links] = useState<any[]>(siteLinks);
 
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 400);
@@ -402,54 +357,7 @@ export default function App() {
 
 function AnnouncementSection() {
   const [current, setCurrent] = useState(0);
-  const [announcements, setAnnouncements] = useState<{ text: string; link?: string }[]>([
-    { text: 'IEEE Gujarat Section Annual General Meeting — June 30, 2025' },
-    { text: 'Call for Papers: IEEE INDICON 2025 — Deadline August 31' },
-    { text: 'Student Branch Excellence Awards Nominations Now Open' },
-    { text: 'New Technical Chapter: IEEE Aerospace & Electronic Systems Society' },
-  ]);
-
-  useEffect(() => {
-    const fetchAnnouncements = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('site_content')
-          .select('*')
-          .eq('section', 'announcements')
-          .order('updated_at', { ascending: false });
-
-        if (!error && data && data.length > 0) {
-          const items = data.map((item: any) => ({
-            text: item.content.text,
-            link: item.content.link,
-          }));
-          setAnnouncements(items);
-          return;
-        }
-      } catch (err) {
-        console.error('Error fetching announcements from Supabase:', err);
-      }
-
-      // Local storage fallback
-      const local = localStorage.getItem('admin_announcements');
-      if (local) {
-        try {
-          const parsed = JSON.parse(local);
-          if (parsed.length > 0) {
-            const items = parsed.map((item: any) => ({
-              text: item.content.text,
-              link: item.content.link,
-            }));
-            setAnnouncements(items);
-          }
-        } catch (e) {
-          console.error('Error parsing local announcements:', e);
-        }
-      }
-    };
-
-    fetchAnnouncements();
-  }, []);
+  const [announcements] = useState<{ text: string; link?: string }[]>(siteAnnouncements);
 
   useEffect(() => {
     if (announcements.length === 0) return;
@@ -575,47 +483,8 @@ function ConnectSection() {
 
 
 function SlideshowSection() {
-  const [slides, setSlides] = useState<any[]>([]);
+  const [slides] = useState<any[]>(slideshowSlides);
   const [current, setCurrent] = useState(0);
-
-  useEffect(() => {
-    const fetchSlides = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('site_content')
-          .select('*')
-          .eq('section', 'slideshow')
-          .eq('key', 'gallery')
-          .single();
-
-        if (!error && data && data.content && data.content.slides) {
-          setSlides(data.content.slides);
-          return;
-        }
-      } catch (err) {
-        console.error('Error fetching slideshow from Supabase:', err);
-      }
-
-      const local = localStorage.getItem('admin_gallery');
-      if (local) {
-        try {
-          setSlides(JSON.parse(local));
-          return;
-        } catch (e) {
-          console.error('Error parsing local gallery:', e);
-        }
-      }
-
-      const defaultSlides = [
-        { id: 'slide-1', imageUrl: 'https://images.pexels.com/photos/2774556/pexels-photo-2774556.jpeg?auto=compress&cs=tinysrgb&w=1200', caption: 'SAMPARK 2026' },
-        { id: 'slide-2', imageUrl: 'https://images.pexels.com/photos/976866/pexels-photo-976866.jpeg?auto=compress&cs=tinysrgb&w=1200', caption: 'IEEE Gujarat Section Technical Congress' },
-        { id: 'slide-3', imageUrl: 'https://images.pexels.com/photos/1709003/pexels-photo-1709003.jpeg?auto=compress&cs=tinysrgb&w=1200', caption: 'Annual General Meeting' },
-      ];
-      setSlides(defaultSlides);
-    };
-
-    fetchSlides();
-  }, []);
 
   useEffect(() => {
     if (slides.length === 0) return;

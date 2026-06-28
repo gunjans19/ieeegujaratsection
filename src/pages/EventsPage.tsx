@@ -1,108 +1,9 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Calendar, MapPin, Clock, ExternalLink, Filter, Search, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
 import PageBackground from '../components/PageBackground';
-
-const allEvents = [
-  {
-    id: 1,
-    title: 'IEEE INDICON 2025',
-    subtitle: 'International Conference on Industrial Technology',
-    date: 'Dec 12-14, 2025',
-    time: '9:00 AM - 6:00 PM IST',
-    location: 'Ahmedabad, Gujarat',
-    category: 'Conference',
-    status: 'upcoming' as const,
-    description: 'Premier international conference bringing together researchers, industry professionals, and academicians to discuss advances in industrial technology.',
-    registrationLink: '#',
-  },
-  {
-    id: 2,
-    title: 'AI/ML Workshop',
-    subtitle: 'From Foundations to Large Language Models',
-    date: 'Jun 8, 2025',
-    time: '10:00 AM - 5:00 PM IST',
-    location: 'IIT Gandhinagar',
-    category: 'Workshop',
-    status: 'upcoming' as const,
-    description: 'Hands-on workshop covering machine learning fundamentals, neural networks, and practical applications of LLMs.',
-    registrationLink: '#',
-  },
-  {
-    id: 3,
-    title: 'IEEE Gujarat Hackathon 2025',
-    subtitle: 'Smart Cities Edition',
-    date: 'Jul 19-20, 2025',
-    time: '36 Hours',
-    location: 'DAIICT, Gandhinagar',
-    category: 'Hackathon',
-    status: 'upcoming' as const,
-    description: 'Annual hackathon focused on developing innovative solutions for smart city challenges using IoT, AI, and sustainable technologies.',
-    registrationLink: '#',
-  },
-  {
-    id: 4,
-    title: 'Power Electronics Symposium',
-    subtitle: 'Renewable Energy Integration',
-    date: 'Aug 5, 2025',
-    time: '2:00 PM - 5:00 PM IST',
-    location: 'Online - IEEE Webex',
-    category: 'Webinar',
-    status: 'upcoming' as const,
-    description: 'Expert talks on power electronics, renewable energy integration, and grid modernization.',
-    registrationLink: '#',
-  },
-  {
-    id: 5,
-    title: 'IEEE Robotics Workshop',
-    subtitle: 'ROS & Autonomous Systems',
-    date: 'Sep 15, 2025',
-    time: '9:00 AM - 4:00 PM IST',
-    location: 'PDPU, Gandhinagar',
-    category: 'Workshop',
-    status: 'upcoming' as const,
-    description: 'Practical workshop on Robot Operating System (ROS), sensor integration, and autonomous navigation.',
-    registrationLink: '#',
-  },
-  {
-    id: 6,
-    title: 'Women in Engineering (WIE) Conference',
-    subtitle: 'Celebrating Women in Engineering',
-    date: 'Oct 10, 2025',
-    time: '10:00 AM - 4:00 PM IST',
-    location: 'CHARUSAT, Anand',
-    category: 'Conference',
-    status: 'upcoming' as const,
-    description: 'Annual conference celebrating women in engineering with keynote sessions, networking, and career guidance.',
-    registrationLink: '#',
-  },
-  {
-    id: 7,
-    title: 'IEEE Day Celebration 2025',
-    subtitle: 'Global Anniversary Celebration',
-    date: 'Oct 7, 2025',
-    time: '5:00 PM - 8:00 PM IST',
-    location: 'Virtual & Multiple Venues',
-    category: 'Event',
-    status: 'upcoming' as const,
-    description: 'Global celebration of IEEE anniversary with technical talks, awards, and networking.',
-    registrationLink: '#',
-  },
-  {
-    id: 8,
-    title: 'Cybersecurity Summit',
-    subtitle: 'Securing the Digital Future',
-    date: 'Nov 22, 2025',
-    time: '9:00 AM - 5:00 PM IST',
-    location: 'IITRAM, Ahmedabad',
-    category: 'Conference',
-    status: 'upcoming' as const,
-    description: 'Summit on cybersecurity challenges, ethical hacking, and best practices for organizations.',
-    registrationLink: '#',
-  },
-];
+import { siteEvents } from '../data/siteData';
 
 const categories = ['All', 'Conference', 'Workshop', 'Hackathon', 'Webinar', 'Event'];
 
@@ -116,68 +17,9 @@ const categoryColors: Record<string, { text: string; bg: string; border: string 
 
 export default function EventsPage() {
   const [activeCategory, setActiveCategory] = useState('All');
-  const [events, setEvents] = useState<any[]>(allEvents);
+  const [events] = useState<any[]>(siteEvents);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
-
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('events')
-          .select('*')
-          .order('date', { ascending: true });
-
-        if (!error && data && data.length > 0) {
-          const mapped = data.map((e: any) => ({
-            id: e.id,
-            title: e.title,
-            subtitle: e.category,
-            date: e.date,
-            time: e.time,
-            location: e.location,
-            category: e.category,
-            status: e.status || 'upcoming',
-            description: e.description,
-            registrationLink: e.registration_link || '#',
-          }));
-          setEvents(mapped);
-          return;
-        }
-      } catch (err) {
-        console.error('Error fetching events from Supabase:', err);
-      }
-
-      // Fallback: Local storage
-      const localEvents = localStorage.getItem('admin_events');
-      if (localEvents) {
-        try {
-          const parsed = JSON.parse(localEvents);
-          const mapped = parsed.map((e: any) => ({
-            id: e.id,
-            title: e.title,
-            subtitle: e.category,
-            date: e.date,
-            time: e.time,
-            location: e.location,
-            category: e.category,
-            status: e.status || 'upcoming',
-            description: e.description,
-            registrationLink: e.registration_link || '#',
-          }));
-          setEvents(mapped);
-          return;
-        } catch (e) {
-          console.error('Error parsing local events:', e);
-        }
-      }
-
-      // Fallback: Default mock data
-      setEvents(allEvents);
-    };
-
-    fetchEvents();
-  }, []);
 
   const getCategoryCount = (category: string) => {
     if (category === 'All') return events.length;
