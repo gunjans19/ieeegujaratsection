@@ -501,7 +501,7 @@ export default function AdminDashboard() {
         {/* Logo */}
         <div className="px-5 py-6 border-b" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
           <img src="/2_20260512_144200_0001.png" alt="IEEE" className="h-10 w-auto object-contain" />
-          <p className="text-[10px] text-slate-500 mt-2 font-mono">Developed by Harshpal Singh Solanki</p>
+          <p className="text-[10px] text-slate-500 mt-2 font-mono">Developed by Gunjan Sharma</p>
         </div>
 
         {/* Nav */}
@@ -530,8 +530,8 @@ export default function AdminDashboard() {
               <Users className="w-4 h-4 text-cyan-400" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-xs text-white font-bold truncate">{localStorage.getItem('admin_name') || 'Harshpal Singh Solanki'}</p>
-              <p className="text-[10px] text-slate-400 truncate mt-0.5">{localStorage.getItem('admin_email') || 'harshpal@ieee.org'}</p>
+              <p className="text-xs text-white font-bold truncate">{localStorage.getItem('admin_name') || 'Gunjan Sharma'}</p>
+              <p className="text-[10px] text-slate-400 truncate mt-0.5">{localStorage.getItem('admin_email') || 'gunjansharma@ieee.org'}</p>
               <p className="text-[9px] text-cyan-400 font-semibold tracking-wider uppercase mt-1">{localStorage.getItem('admin_role') || 'Super Admin'}</p>
             </div>
           </div>
@@ -542,7 +542,7 @@ export default function AdminDashboard() {
             <LogOut className="w-4 h-4" />
             Sign Out
           </button>
-          <p className="text-[9px] text-slate-600 text-center font-mono uppercase tracking-wider mt-1">Developed by Harshpal Singh Solanki</p>
+          <p className="text-[9px] text-slate-600 text-center font-mono uppercase tracking-wider mt-1">Developed by Gunjan Sharma</p>
         </div>
       </aside>
 
