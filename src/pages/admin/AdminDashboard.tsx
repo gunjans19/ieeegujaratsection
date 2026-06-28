@@ -500,7 +500,7 @@ export default function AdminDashboard() {
       }`} style={{ background: 'rgba(0,15,35,0.98)', borderRight: '1px solid rgba(255,255,255,0.07)' }}>
         {/* Logo */}
         <div className="px-5 py-6 border-b" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
-          <img src="/2_20260512_144200_0001.png" alt="IEEE Gujarat Section" className="h-16 w-auto object-contain" />
+          <img src="/2_20260512_144200_0001.png" alt="IEEE Gujarat Section" className="h-20 w-auto object-contain" />
         </div>
 
         {/* Nav */}
@@ -515,9 +515,9 @@ export default function AdminDashboard() {
                   : 'text-slate-400 hover:bg-white/5 hover:text-white'
               }`}
             >
-              <Icon className="w-5 h-5" />
-              {label}
-              {activeTab === id && <ChevronRight className="w-4 h-4 ml-auto" />}
+              <Icon className="w-5 h-5 shrink-0" />
+              <span className="whitespace-nowrap">{label}</span>
+              {activeTab === id && <ChevronRight className="w-4 h-4 ml-auto shrink-0" />}
             </button>
           ))}
         </nav>
