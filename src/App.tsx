@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ChevronUp, Zap, ChevronLeft, ChevronRight, Linkedin, Instagram, Youtube } from 'lucide-react';
-import PageBackground from './components/PageBackground';
-import { siteLinks, siteAnnouncements, slideshowSlides } from './data/siteData';
+import { Linkedin, MessageCircle, Globe, Network, Calendar, ChevronUp, Instagram, Youtube, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
+import { supabase } from './lib/supabase';
 
 const phrases = [
   'Connecting Technology, Innovation & Professionals',
@@ -18,7 +17,52 @@ export default function App() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [charIndex, setCharIndex] = useState(0);
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [links] = useState<any[]>(siteLinks);
+  const [links, setLinks] = useState<any[]>([
+    { icon: Linkedin, label: 'LinkedIn', description: 'Connect with us professionally', href: 'https://www.linkedin.com/company/ieee-gujarat-section/', isExternal: true },
+    { icon: MessageCircle, label: 'WhatsApp Community', description: 'Join our active discussion group', href: 'https://chat.whatsapp.com/', isExternal: true },
+    { icon: Globe, label: 'Official Website', description: 'Explore IEEE Gujarat Section', href: 'https://ieeegujaratsection.org/', isExternal: true },
+    { icon: Network, label: 'Membership Portal', description: 'Join or renew IEEE membership', href: 'https://www.ieee.org/', isExternal: true },
+    { icon: Calendar, label: 'Upcoming Events', description: 'Conferences, workshops & more', href: '/events', isExternal: false },
+  ]);
+
+  useEffect(() => {
+    const fetchLinks = async () => {
+      try {
+        const localLinks = localStorage.getItem('admin_links');
+        let data;
+        if (localLinks) {
+          data = JSON.parse(localLinks);
+        } else {
+          const { data: dbData, error } = await supabase
+            .from('site_content')
+            .select('*')
+            .eq('section', 'links')
+            .order('key');
+          if (!error && dbData && dbData.length > 0) {
+            data = dbData;
+          }
+        }
+
+        if (data) {
+          const iconMap: Record<string, any> = {
+            Linkedin, MessageCircle, Globe, Network, Calendar
+          };
+          const mapped = data.map((item: any) => ({
+            icon: iconMap[item.content.icon] || Globe,
+            label: item.content.label,
+            description: item.content.description,
+            href: item.content.url,
+            isExternal: !item.content.url.startsWith('/'),
+          }));
+          setLinks(mapped);
+        }
+      } catch (err) {
+        console.error('Error fetching links:', err);
+      }
+    };
+
+    fetchLinks();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 400);
@@ -103,8 +147,11 @@ export default function App() {
         />
       </div>
 
-      {/* Page Background (Particles & Mouse Glow) */}
-      <PageBackground />
+      {/* Particles Canvas */}
+      <ParticleCanvas />
+
+      {/* Mouse Glow */}
+      <MouseGlow />
 
       {/* Content */}
       <div className="relative z-10">
@@ -357,7 +404,55 @@ export default function App() {
 
 function AnnouncementSection() {
   const [current, setCurrent] = useState(0);
-  const [announcements] = useState<{ text: string; link?: string }[]>(siteAnnouncements);
+  const [announcements, setAnnouncements] = useState<{ text: string; link?: string }[]>([
+    { text: 'IEEE Gujarat Section Annual General Meeting — June 30, 2025' },
+    { text: 'Call for Papers: IEEE INDICON 2025 — Deadline August 31' },
+    { text: 'Student Branch Excellence Awards Nominations Now Open' },
+    { text: 'New Technical Chapter: IEEE Aerospace & Electronic Systems Society' },
+  ]);
+
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      // Try local storage first
+      const local = localStorage.getItem('admin_announcements');
+      if (local) {
+        try {
+          const parsed = JSON.parse(local);
+          if (parsed.length > 0) {
+            const items = parsed.map((item: any) => ({
+              text: item.content.text,
+              link: item.content.link,
+            }));
+            setAnnouncements(items);
+            return;
+          }
+        } catch (e) {
+          console.error('Error parsing local announcements:', e);
+        }
+      }
+
+      // Supabase fallback
+      try {
+        const { data, error } = await supabase
+          .from('site_content')
+          .select('*')
+          .eq('section', 'announcements')
+          .order('updated_at', { ascending: false });
+
+        if (!error && data && data.length > 0) {
+          const items = data.map((item: any) => ({
+            text: item.content.text,
+            link: item.content.link,
+          }));
+          setAnnouncements(items);
+        }
+      } catch (err) {
+        console.error('Error fetching announcements:', err);
+      }
+    };
+
+    fetchAnnouncements();
+  }, []);
 
   useEffect(() => {
     if (announcements.length === 0) return;
@@ -480,11 +575,129 @@ function ConnectSection() {
   );
 }
 
+function ParticleCanvas() {
 
+  useEffect(() => {
+    const canvas = document.createElement('canvas');
+    canvas.id = 'particles-canvas';
+    canvas.style.position = 'fixed';
+    canvas.style.inset = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.zIndex = '0';
+    canvas.style.pointerEvents = 'none';
+    document.body.insertBefore(canvas, document.body.firstChild);
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const particles: { x: number, y: number, r: number, dx: number, dy: number }[] = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    for (let i = 0; i < 80; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.5 + 0.5,
+        dx: (Math.random() - 0.5) * 0.4,
+        dy: (Math.random() - 0.5) * 0.4
+      });
+    }
+
+    function animate() {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach(p => {
+        p.x += p.dx;
+        p.y += p.dy;
+
+        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,200,255,0.25)';
+        ctx.fill();
+      });
+
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(0,180,255,${0.06 * (1 - dist / 120)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  }, []);
+
+  return null;
+}
+
+function MouseGlow() {
+  useEffect(() => {
+    const glow = document.createElement('div');
+    glow.id = 'mouse-glow';
+    glow.style.position = 'fixed';
+    glow.style.width = '500px';
+    glow.style.height = '500px';
+    glow.style.borderRadius = '50%';
+    glow.style.background = 'radial-gradient(circle, rgba(0,180,255,0.08) 0%, transparent 70%)';
+    glow.style.pointerEvents = 'none';
+    glow.style.zIndex = '1';
+    document.body.appendChild(glow);
+
+    document.addEventListener('mousemove', (e) => {
+      glow.style.left = e.clientX - 250 + 'px';
+      glow.style.top = e.clientY - 250 + 'px';
+    });
+
+    return () => {
+      glow.remove();
+    };
+  }, []);
+
+  return null;
+}
 
 function SlideshowSection() {
-  const [slides] = useState<any[]>(slideshowSlides);
+  const [slides, setSlides] = useState<any[]>([]);
   const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    const local = localStorage.getItem('admin_gallery');
+    if (local) {
+      setSlides(JSON.parse(local));
+    } else {
+      const defaultSlides = [
+        { id: 'slide-1', imageUrl: 'https://images.pexels.com/photos/2774556/pexels-photo-2774556.jpeg?auto=compress&cs=tinysrgb&w=1200', caption: 'SAMPARK 2026' },
+        { id: 'slide-2', imageUrl: 'https://images.pexels.com/photos/976866/pexels-photo-976866.jpeg?auto=compress&cs=tinysrgb&w=1200', caption: 'IEEE Gujarat Section Technical Congress' },
+        { id: 'slide-3', imageUrl: 'https://images.pexels.com/photos/1709003/pexels-photo-1709003.jpeg?auto=compress&cs=tinysrgb&w=1200', caption: 'Annual General Meeting' },
+      ];
+      setSlides(defaultSlides);
+      localStorage.setItem('admin_gallery', JSON.stringify(defaultSlides));
+    }
+  }, []);
 
   useEffect(() => {
     if (slides.length === 0) return;

@@ -1,9 +1,107 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Calendar, MapPin, Clock, ExternalLink, Filter, Search, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import PageBackground from '../components/PageBackground';
-import { siteEvents } from '../data/siteData';
+import { supabase } from '../lib/supabase';
+
+const allEvents = [
+  {
+    id: 1,
+    title: 'IEEE INDICON 2025',
+    subtitle: 'International Conference on Industrial Technology',
+    date: 'Dec 12-14, 2025',
+    time: '9:00 AM - 6:00 PM IST',
+    location: 'Ahmedabad, Gujarat',
+    category: 'Conference',
+    status: 'upcoming' as const,
+    description: 'Premier international conference bringing together researchers, industry professionals, and academicians to discuss advances in industrial technology.',
+    registrationLink: '#',
+  },
+  {
+    id: 2,
+    title: 'AI/ML Workshop',
+    subtitle: 'From Foundations to Large Language Models',
+    date: 'Jun 8, 2025',
+    time: '10:00 AM - 5:00 PM IST',
+    location: 'IIT Gandhinagar',
+    category: 'Workshop',
+    status: 'upcoming' as const,
+    description: 'Hands-on workshop covering machine learning fundamentals, neural networks, and practical applications of LLMs.',
+    registrationLink: '#',
+  },
+  {
+    id: 3,
+    title: 'IEEE Gujarat Hackathon 2025',
+    subtitle: 'Smart Cities Edition',
+    date: 'Jul 19-20, 2025',
+    time: '36 Hours',
+    location: 'DAIICT, Gandhinagar',
+    category: 'Hackathon',
+    status: 'upcoming' as const,
+    description: 'Annual hackathon focused on developing innovative solutions for smart city challenges using IoT, AI, and sustainable technologies.',
+    registrationLink: '#',
+  },
+  {
+    id: 4,
+    title: 'Power Electronics Symposium',
+    subtitle: 'Renewable Energy Integration',
+    date: 'Aug 5, 2025',
+    time: '2:00 PM - 5:00 PM IST',
+    location: 'Online - IEEE Webex',
+    category: 'Webinar',
+    status: 'upcoming' as const,
+    description: 'Expert talks on power electronics, renewable energy integration, and grid modernization.',
+    registrationLink: '#',
+  },
+  {
+    id: 5,
+    title: 'IEEE Robotics Workshop',
+    subtitle: 'ROS & Autonomous Systems',
+    date: 'Sep 15, 2025',
+    time: '9:00 AM - 4:00 PM IST',
+    location: 'PDPU, Gandhinagar',
+    category: 'Workshop',
+    status: 'upcoming' as const,
+    description: 'Practical workshop on Robot Operating System (ROS), sensor integration, and autonomous navigation.',
+    registrationLink: '#',
+  },
+  {
+    id: 6,
+    title: 'Women in Engineering (WIE) Conference',
+    subtitle: 'Celebrating Women in Engineering',
+    date: 'Oct 10, 2025',
+    time: '10:00 AM - 4:00 PM IST',
+    location: 'CHARUSAT, Anand',
+    category: 'Conference',
+    status: 'upcoming' as const,
+    description: 'Annual conference celebrating women in engineering with keynote sessions, networking, and career guidance.',
+    registrationLink: '#',
+  },
+  {
+    id: 7,
+    title: 'IEEE Day Celebration 2025',
+    subtitle: 'Global Anniversary Celebration',
+    date: 'Oct 7, 2025',
+    time: '5:00 PM - 8:00 PM IST',
+    location: 'Virtual & Multiple Venues',
+    category: 'Event',
+    status: 'upcoming' as const,
+    description: 'Global celebration of IEEE anniversary with technical talks, awards, and networking.',
+    registrationLink: '#',
+  },
+  {
+    id: 8,
+    title: 'Cybersecurity Summit',
+    subtitle: 'Securing the Digital Future',
+    date: 'Nov 22, 2025',
+    time: '9:00 AM - 5:00 PM IST',
+    location: 'IITRAM, Ahmedabad',
+    category: 'Conference',
+    status: 'upcoming' as const,
+    description: 'Summit on cybersecurity challenges, ethical hacking, and best practices for organizations.',
+    registrationLink: '#',
+  },
+];
 
 const categories = ['All', 'Conference', 'Workshop', 'Hackathon', 'Webinar', 'Event'];
 
@@ -17,9 +115,60 @@ const categoryColors: Record<string, { text: string; bg: string; border: string 
 
 export default function EventsPage() {
   const [activeCategory, setActiveCategory] = useState('All');
-  const [events] = useState<any[]>(siteEvents);
+  const [events, setEvents] = useState<any[]>(allEvents);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const localEvents = localStorage.getItem('admin_events');
+        if (localEvents) {
+          const parsed = JSON.parse(localEvents);
+          const mapped = parsed.map((e: any) => ({
+            id: e.id,
+            title: e.title,
+            subtitle: e.category,
+            date: e.date,
+            time: e.time,
+            location: e.location,
+            category: e.category,
+            status: e.status || 'upcoming',
+            description: e.description,
+            registrationLink: e.registration_link || '#',
+          }));
+          setEvents(mapped);
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from('events')
+          .select('*')
+          .order('date', { ascending: true });
+
+        if (!error && data && data.length > 0) {
+          const mapped = data.map((e: any) => ({
+            id: e.id,
+            title: e.title,
+            subtitle: e.category,
+            date: e.date,
+            time: e.time,
+            location: e.location,
+            category: e.category,
+            status: e.status || 'upcoming',
+            description: e.description,
+            registrationLink: e.registration_link || '#',
+          }));
+          setEvents(mapped);
+          localStorage.setItem('admin_events', JSON.stringify(data));
+        }
+      } catch (err) {
+        console.error('Error fetching events:', err);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const getCategoryCount = (category: string) => {
     if (category === 'All') return events.length;
@@ -40,8 +189,11 @@ export default function EventsPage() {
       backgroundSize: '400% 400%',
       animation: 'gradientShift 15s ease infinite',
     }}>
-      {/* Page Background (Particles & Mouse Glow) */}
-      <PageBackground />
+      {/* Particles Canvas */}
+      <ParticleCanvas />
+
+      {/* Mouse Glow */}
+      <MouseGlow />
 
       {/* 3D Background Grid */}
       <div className="fixed inset-0 pointer-events-none z-0" style={{
@@ -379,4 +531,109 @@ function EventCard({ event, delay, onClick }: { event: any; delay: number; onCli
   );
 }
 
+function ParticleCanvas() {
+  useEffect(() => {
+    const canvas = document.createElement('canvas');
+    canvas.id = 'particles-canvas';
+    canvas.style.position = 'fixed';
+    canvas.style.inset = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.zIndex = '0';
+    canvas.style.pointerEvents = 'none';
+    document.body.insertBefore(canvas, document.body.firstChild);
 
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const particles: { x: number, y: number, r: number, dx: number, dy: number }[] = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    for (let i = 0; i < 80; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.5 + 0.5,
+        dx: (Math.random() - 0.5) * 0.4,
+        dy: (Math.random() - 0.5) * 0.4
+      });
+    }
+
+    function animate() {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach(p => {
+        p.x += p.dx;
+        p.y += p.dy;
+
+        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,200,255,0.25)';
+        ctx.fill();
+      });
+
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(0,180,255,${0.06 * (1 - dist / 120)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  }, []);
+
+  return null;
+}
+
+function MouseGlow() {
+  useEffect(() => {
+    const glow = document.createElement('div');
+    glow.id = 'mouse-glow';
+    glow.style.position = 'fixed';
+    glow.style.width = '500px';
+    glow.style.height = '500px';
+    glow.style.borderRadius = '50%';
+    glow.style.background = 'radial-gradient(circle, rgba(0,180,255,0.08) 0%, transparent 70%)';
+    glow.style.pointerEvents = 'none';
+    glow.style.zIndex = '1';
+    document.body.appendChild(glow);
+
+    const handleMouseMove = (e: MouseEvent) => {
+      glow.style.left = e.clientX - 250 + 'px';
+      glow.style.top = e.clientY - 250 + 'px';
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      glow.remove();
+      document.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+
+  return null;
+}

@@ -1,21 +1,164 @@
 import { motion } from 'framer-motion';
 import { ArrowLeft, Linkedin, Mail } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import PageBackground from '../components/PageBackground';
-import { committeeGroups } from '../data/siteData';
+
+const committeeMembers = [
+  {
+    role: 'Executive Committee',
+    members: [
+      {
+        name: 'Dr. Anil Roy',
+        position: 'Section Chair',
+        organization: 'DA-IICT, Gandhinagar',
+        email: 'anil.roy@ieeegujarat.org',
+        linkedin: '#',
+        avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
+      },
+      {
+        name: 'Dr. Hardik Pathak',
+        position: 'Vice Chair',
+        organization: 'Adani University',
+        email: 'hardik.pathak@ieeegujarat.org',
+        linkedin: '#',
+        avatar: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
+      },
+      {
+        name: 'Prof. Sanjay Chaudhary',
+        position: 'Secretary',
+        organization: 'Ahmedabad University',
+        email: 'sanjay.chaudhary@ieeegujarat.org',
+        linkedin: '#',
+        avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
+      },
+      {
+        name: 'Prof. Nilesh Ranpura',
+        position: 'Treasurer',
+        organization: 'L&T Technology Services',
+        email: 'nilesh.ranpura@ieeegujarat.org',
+        linkedin: '#',
+        avatar: 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
+      },
+      {
+        name: 'Prof. R. C. Hansdah',
+        position: 'Joint Secretary',
+        organization: 'IISc Bangalore / DA-IICT',
+        email: 'hansdah@ieeegujarat.org',
+        linkedin: '#',
+        avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
+      },
+    ],
+  },
+  {
+    role: 'Advisory Committee',
+    members: [
+      {
+        name: 'Dr. Sameer Patel',
+        position: 'Immediate Past Chair',
+        organization: 'Nirma University',
+        email: 'sameer.patel@ieeegujarat.org',
+        linkedin: '#',
+        avatar: 'https://images.pexels.com/photos/3785079/pexels-photo-3785079.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
+      },
+      {
+        name: 'Dr. Manik Lal Das',
+        position: 'Senior Advisor',
+        organization: 'DA-IICT, Gandhinagar',
+        email: 'maniklal.das@ieeegujarat.org',
+        linkedin: '#',
+        avatar: 'https://images.pexels.com/photos/3777931/pexels-photo-3777931.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
+      },
+    ],
+  },
+  {
+    role: 'Subcommittee',
+    members: [
+      {
+        name: 'Dr. Vijay Singh',
+        position: 'Technical Activities Chair',
+        organization: 'IIT Gandhinagar',
+        email: 'vijay.singh@ieeegujarat.org',
+        linkedin: '#',
+        avatar: 'https://images.pexels.com/photos/1516680/pexels-photo-1516680.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
+      },
+      {
+        name: 'Dr. Mita Patel',
+        position: 'Women in Engineering (WIE) Chair',
+        organization: 'Nirma University',
+        email: 'mita.patel@ieeegujarat.org',
+        linkedin: '#',
+        avatar: 'https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
+      },
+    ],
+  },
+  {
+    role: 'Section Student Representative Team',
+    members: [
+      {
+        name: 'Meet Patel',
+        position: 'Section Student Representative',
+        organization: 'DA-IICT',
+        email: 'meet.patel@ieeegujarat.org',
+        linkedin: '#',
+        avatar: 'https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
+      },
+      {
+        name: 'Riya Shah',
+        position: 'Associate Student Representative',
+        organization: 'Nirma University',
+        email: 'riya.shah@ieeegujarat.org',
+        linkedin: '#',
+        avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
+      },
+    ],
+  },
+  {
+    role: 'Social Media Committee',
+    members: [
+      {
+        name: 'Arnav Mehta',
+        position: 'Social Media Chair',
+        organization: 'Ahmedabad University',
+        email: 'arnav.mehta@ieeegujarat.org',
+        linkedin: '#',
+        avatar: 'https://images.pexels.com/photos/912278/pexels-photo-912278.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
+      },
+      {
+        name: 'Dev Patel',
+        position: 'Graphic Designer & Content Lead',
+        organization: 'Adani University',
+        email: 'dev.patel@ieeegujarat.org',
+        linkedin: '#',
+        avatar: 'https://images.pexels.com/photos/2287252/pexels-photo-2287252.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
+      },
+    ],
+  },
+];
 
 export default function CommitteePage() {
-  const [groups] = useState<any[]>(committeeGroups);
+  const [groups, setGroups] = useState<any[]>([]);
   const [expandedGroups, setExpandedGroups] = useState<{ [key: number]: boolean }>({});
+
+  useEffect(() => {
+    const local = localStorage.getItem('admin_committee');
+    if (local && local.includes('Social Media Committee') && local.includes('Hansdah')) {
+      setGroups(JSON.parse(local));
+    } else {
+      setGroups(committeeMembers);
+      localStorage.setItem('admin_committee', JSON.stringify(committeeMembers));
+    }
+  }, []);
   return (
     <div className="relative min-h-screen overflow-x-hidden" style={{
       background: 'linear-gradient(-45deg, #001a2e, #003050, #001a2e, #002040)',
       backgroundSize: '400% 400%',
       animation: 'gradientShift 15s ease infinite',
     }}>
-      {/* Page Background (Particles & Mouse Glow) */}
-      <PageBackground />
+      {/* Particles Background */}
+      <ParticleCanvas />
+
+      {/* Mouse Glow cursor effect */}
+      <MouseGlow />
 
       {/* 3D Grid */}
       <div className="fixed inset-0 pointer-events-none z-0" style={{
@@ -150,4 +293,109 @@ export default function CommitteePage() {
   );
 }
 
+function ParticleCanvas() {
+  useEffect(() => {
+    const canvas = document.createElement('canvas');
+    canvas.id = 'particles-canvas';
+    canvas.style.position = 'fixed';
+    canvas.style.inset = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.zIndex = '0';
+    canvas.style.pointerEvents = 'none';
+    document.body.insertBefore(canvas, document.body.firstChild);
 
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const particles: { x: number, y: number, r: number, dx: number, dy: number }[] = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    for (let i = 0; i < 80; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.5 + 0.5,
+        dx: (Math.random() - 0.5) * 0.4,
+        dy: (Math.random() - 0.5) * 0.4
+      });
+    }
+
+    function animate() {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach(p => {
+        p.x += p.dx;
+        p.y += p.dy;
+
+        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,200,255,0.25)';
+        ctx.fill();
+      });
+
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(0,180,255,${0.06 * (1 - dist / 120)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  }, []);
+
+  return null;
+}
+
+function MouseGlow() {
+  useEffect(() => {
+    const glow = document.createElement('div');
+    glow.id = 'mouse-glow';
+    glow.style.position = 'fixed';
+    glow.style.width = '500px';
+    glow.style.height = '500px';
+    glow.style.borderRadius = '50%';
+    glow.style.background = 'radial-gradient(circle, rgba(0,180,255,0.08) 0%, transparent 70%)';
+    glow.style.pointerEvents = 'none';
+    glow.style.zIndex = '1';
+    document.body.appendChild(glow);
+
+    const handleMouseMove = (e: MouseEvent) => {
+      glow.style.left = e.clientX - 250 + 'px';
+      glow.style.top = e.clientY - 250 + 'px';
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      glow.remove();
+      document.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+
+  return null;
+}
