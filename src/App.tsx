@@ -164,13 +164,13 @@ export default function App() {
       {/* Content */}
       <div className="relative z-10">
         {/* Header */}
-        <header className="text-center px-4 pt-20 pb-16">
+        <header className="text-center px-4 pt-8 pb-12">
           {/* Logo */}
           <motion.div
             initial={{ scale: 0.85, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.8 }}
-            className="inline-flex items-center justify-center mx-auto mb-8"
+            className="inline-flex items-center justify-center mx-auto -mb-6 sm:-mb-10 md:-mb-16"
             style={{
               animation: 'float 4s ease-in-out infinite',
             }}
