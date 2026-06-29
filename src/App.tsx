@@ -175,7 +175,7 @@ export default function App() {
               animation: 'float 4s ease-in-out infinite',
             }}
           >
-            <div className="relative w-40 h-40 sm:w-52 sm:h-52 md:w-64 md:h-64 aspect-square flex items-center justify-center">
+            <div className="relative w-56 h-56 sm:w-72 sm:h-72 md:w-96 md:h-96 aspect-square flex items-center justify-center">
               <motion.img
                 src="/2_20260512_144200_0001.png"
                 alt="IEEE Gujarat Section Blue"
