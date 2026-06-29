@@ -175,11 +175,11 @@ export default function App() {
               animation: 'float 4s ease-in-out infinite',
             }}
           >
-            <div className="relative h-36 sm:h-48 md:h-60 flex items-center justify-center">
+            <div className="relative w-40 h-40 sm:w-52 sm:h-52 md:w-64 md:h-64 aspect-square flex items-center justify-center">
               <motion.img
                 src="/2_20260512_144200_0001.png"
                 alt="IEEE Gujarat Section Blue"
-                className="h-full w-auto object-contain"
+                className="absolute inset-0 w-full h-full object-contain"
                 animate={{ opacity: logoType === 'blue' ? 1 : 0 }}
                 transition={{ duration: 0.8, ease: "easeInOut" }}
                 style={{ filter: 'drop-shadow(0 0 16px rgba(0,180,255,0.45))' }}
@@ -187,7 +187,7 @@ export default function App() {
               <motion.img
                 src="/ieee_logo_white.png"
                 alt="IEEE Gujarat Section White"
-                className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 h-full w-auto object-contain"
+                className="absolute inset-0 w-full h-full object-contain"
                 animate={{ opacity: logoType === 'white' ? 1 : 0 }}
                 transition={{ duration: 0.8, ease: "easeInOut" }}
                 style={{ filter: 'drop-shadow(0 0 16px rgba(255,255,255,0.25))' }}
@@ -247,10 +247,10 @@ export default function App() {
           </motion.div>
         </header>
 
-        <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent max-w-3xl md:max-w-5xl lg:max-w-6xl xl:max-w-[1400px] mx-auto mb-12" />
+        <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent max-w-3xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto mb-12" />
 
         {/* Main Links */}
-        <main className="max-w-3xl md:max-w-5xl lg:max-w-6xl xl:max-w-[1400px] mx-auto px-4 pb-16">
+        <main className="max-w-3xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto px-4 pb-16">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             {links.map((link, i) => {
               const Icon = link.icon;
@@ -293,7 +293,7 @@ export default function App() {
         </main>
 
         {/* About Section */}
-        <section className="max-w-3xl md:max-w-5xl lg:max-w-6xl xl:max-w-[1400px] mx-auto px-4 pb-16">
+        <section className="max-w-3xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto px-4 pb-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -317,7 +317,7 @@ export default function App() {
         </section>
 
         {/* Events Section */}
-        <section className="max-w-3xl md:max-w-5xl lg:max-w-6xl xl:max-w-[1400px] mx-auto px-4 pb-16">
+        <section className="max-w-3xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto px-4 pb-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -342,7 +342,7 @@ export default function App() {
         </section>
 
         {/* Committee Section */}
-        <section className="max-w-3xl md:max-w-5xl lg:max-w-6xl xl:max-w-[1400px] mx-auto px-4 pb-16">
+        <section className="max-w-3xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto px-4 pb-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -483,7 +483,7 @@ function AnnouncementSection() {
   const activeAnn = announcements[current];
 
   return (
-    <section className="max-w-3xl md:max-w-5xl lg:max-w-6xl xl:max-w-[1400px] mx-auto px-4 pb-16">
+    <section className="max-w-3xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto px-4 pb-16">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -556,7 +556,7 @@ function ConnectSection() {
   ];
 
   return (
-    <section className="max-w-3xl md:max-w-5xl lg:max-w-6xl xl:max-w-[1400px] mx-auto px-4 pb-16">
+    <section className="max-w-3xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto px-4 pb-16">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -746,7 +746,7 @@ function SlideshowSection() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.35, duration: 0.6 }}
-      className="max-w-3xl md:max-w-5xl lg:max-w-6xl xl:max-w-[1400px] mx-auto rounded-3xl overflow-hidden relative shadow-2xl mt-10 border border-white/10 group aspect-[21/9] sm:aspect-[16/7] md:aspect-[2.2/1] select-none"
+      className="max-w-3xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto rounded-3xl overflow-hidden relative shadow-2xl mt-10 border border-white/10 group aspect-[21/9] sm:aspect-[16/7] md:aspect-[2.2/1] select-none"
     >
       {/* Slide Image */}
       <AnimatePresence mode="wait">
