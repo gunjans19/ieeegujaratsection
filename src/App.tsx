@@ -341,7 +341,7 @@ export default function App() {
           </motion.div>
         </section>
 
-        {/* Committee Section */}
+        {/* Committee Section
         <section className="max-w-3xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto px-4 pb-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -365,6 +365,7 @@ export default function App() {
             </div>
           </motion.div>
         </section>
+        */}
 
         {/* Announcement Section */}
         <AnnouncementSection />
