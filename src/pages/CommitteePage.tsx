@@ -179,7 +179,7 @@ export default function CommitteePage() {
         }} />
       </div>
 
-      <main className="relative z-10 max-w-5xl mx-auto px-4 py-8 sm:py-12">
+      <main className="relative z-10 max-w-5xl lg:max-w-6xl xl:max-w-[1400px] mx-auto px-4 py-8 sm:py-12">
         {/* Header */}
         <motion.div
           initial={{ y: -20, opacity: 0 }}
