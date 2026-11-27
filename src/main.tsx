@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import App from './App.tsx';
 import EventsPage from './pages/EventsPage.tsx';
 import CommitteePage from './pages/CommitteePage.tsx';
@@ -24,6 +25,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/admin" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
       </Routes>
+      <SpeedInsights />
     </BrowserRouter>
   </StrictMode>
 );
